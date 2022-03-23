@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 import os
 import argparse
-from cairo import Status
 import requests
 import json
 import re
 from bs4 import BeautifulSoup
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+from urllib3 import disable_warnings
+from urllib3.exceptions import InsecureRequestWarning
+disable_warnings(InsecureRequestWarning)
 
 def color(col):
 	if col == 'yellow':
