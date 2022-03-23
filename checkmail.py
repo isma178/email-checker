@@ -1,6 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 import os
 import argparse
+from cairo import Status
 import requests
 import json
 import re
@@ -30,7 +31,7 @@ def mailru_check(mailru_domain):
 	status_bool = str(resp_json.get('body').get('exists'))
 	resp_dict = {'True': color('red')+'[-] Email is already use!'+color('end'), 'False': color('green')+'[+] Email is available!'+color('end')}
 	status = resp_dict.get(status_bool)
-	print u'{0:34} Domain: {1:10}'.format(status,mailru_domain)
+	print (u'{0:34} Domain: {1:10}'.format(status,mailru_domain))
 	if status_bool == 'True': 
 		email_list.append(email+'@'+mailru_domain)
 
@@ -50,12 +51,13 @@ def yandex_check():
 	payload = 'track_id='+track_id+'&login='+email+'&csrf_token='+csrf_token
 	req = requests.post(check_url, data = payload, timeout = 3, stream = False, verify = False, headers = headers, cookies = yandex_cookie)
 	status = req.content
+	status = status.decode()
 	if 'login.not_available' in status:
-		print mail_status.get('0'), 'Domain: yandex.ru'
+		print(mail_status.get('0'), 'Domain: yandex.ru')
 		email_list.append(email+'@yandex.ru')
 		email_list.append(email+'@ya.ru')
 	else:
-		print mail_status.get('1'), 'Domain: yandex.ru'
+		print(mail_status.get('1'), 'Domain: yandex.ru')
 
 def yahoo_session():
 	global acrumb, crumb, yahoo_cookie
@@ -75,11 +77,12 @@ def yahoo_check():
 	payload = 'specId=yidreg&crumb='+crumb+'&acrumb='+acrumb+'&yid='+email
 	req = requests.post(check_url, data = payload, timeout = 3, stream = False, verify = False, headers = headers, cookies = yahoo_cookie)
 	status = req.content
+	status = status.decode()
 	if 'IDENTIFIER_EXISTS' in status:
-		print mail_status.get('0'), 'Domain: yahoo.com'
+		print(mail_status.get('0'), 'Domain: yahoo.com')
 		email_list.append(email+'@yahoo.com')
 	else:
-		print mail_status.get('1'), 'Domain: yahoo.com'
+		print(mail_status.get('1'), 'Domain: yahoo.com')
 
 def gmail_session():
 	global result
@@ -97,11 +100,12 @@ def gmail_check():
 	payload = 'f.req=['+result+',"","","'+email+'"]'
 	req = requests.post(check_url, data = payload, timeout = 3, stream = False, verify = False, headers = headers)
 	status = req.content
+	status = status.decode()
 	check_status = status.split(',')[1]
 	resp_dict = {'2': color('red')+'[-] Email is already use!'+color('end'), '1': color('green')+'[+] Email is available!'+color('end')}
 	status = resp_dict.get(check_status)
-        print u'{0:34} Domain: {1:10}'.format(status,'gmail.com')
-	if check_status == '2':
+	print(u'{0:34} Domain: {1:10}'.format(status,'gmail.com'))
+	if check_status == '1':
 		email_list.append(email+'@gmail.com')
 
 def rambler_check(rambler_domain):
@@ -110,10 +114,11 @@ def rambler_check(rambler_domain):
 	payload = '{"rpc":"2.0","method":"Rambler::Id::login_available","params":[{"login":"'+email+'@'+rambler_domain+'"}]}'
 	req = requests.post(check_url, data = payload, timeout = 3, stream = False, verify = False, headers = headers)
 	status = req.content
+	status = status.decode()
 	if '"strerror":"user not exist"' in status:
-		print mail_status.get('1'), 'Domain:',rambler_domain
+		print(mail_status.get('1'), 'Domain:',rambler_domain)
 	else:
-		print mail_status.get('0') , 'Domain:',rambler_domain
+		print(mail_status.get('0') , 'Domain:',rambler_domain)
 		email_list.append(email+'@'+rambler_domain)
 
 
@@ -127,39 +132,39 @@ os.system('clear')
 headers = {'UserAgent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.73 Safari/537.36'}
 mail_status = {'0': color('red')+'[-] Email is already use!'+color('end'), '1': color('green')+'[+] Email is available!  '+color('end')}
 email_list = []
-print color('cyan')+'-------------------------------------------------'+color('end')
-print color('magenta')+'             EXISTENCE EMAIL CHECKER'+color('end')
-print color('cyan')+'-------------------------------------------------'+color('end')
+print(color('cyan')+'-------------------------------------------------'+color('end'))
+print(color('magenta')+'             EXISTENCE EMAIL CHECKER'+color('end'))
+print(color('cyan')+'-------------------------------------------------'+color('end'))
 
 if email is None:
-	print color('red')+"Run script option -h"+color('end')
+	print(color('red')+"Run script option -h"+color('end'))
 	os._exit(0)
 
-print 'Check email: ', color('yellow')+email+color('end')
+print('Check email: ', color('yellow')+email+color('end'))
 
-print color('cyan')+'-------------------YANDEX.RU---------------------'+color('end')
+print(color('cyan')+'-------------------YANDEX.RU---------------------'+color('end'))
 yandex_session()
 yandex_check()
 
-print color('cyan')+'--------------------MAIL.RU----------------------'+color('end')
+print(color('cyan')+'--------------------MAIL.RU----------------------'+color('end'))
 mailru_domains = ['mail.ru','bk.ru','inbox.ru','list.ru','internet.ru']
 for domain in mailru_domains:
 	mailru_check(domain)
 
-print color('cyan')+'-------------------GMAIL.COM---------------------'+color('end')
+print(color('cyan')+'-------------------GMAIL.COM---------------------'+color('end'))
 gmail_session()
 gmail_check()
 
-print color('cyan')+'------------------RAMBLER.RU---------------------'+color('end')
+print(color('cyan')+'------------------RAMBLER.RU---------------------'+color('end'))
 rambler_domains = ['rambler.ru','lenta.ru','autorambler.ru','myrambler.ru','ro.ru']
 for domain in rambler_domains:
 	rambler_check(domain)
 
-print color('cyan')+'------------------YAHOO.COM----------------------'+color('end')
+print(color('cyan')+'------------------YAHOO.COM----------------------'+color('end'))
 yahoo_session()
 yahoo_check()
 
-print color('cyan')+'-------------------------------------------------'+color('end')
+print(color('cyan')+'-------------------------------------------------'+color('end'))
 
-print ('All emails:')
-print email_list
+print('All emails:')
+print(email_list)
